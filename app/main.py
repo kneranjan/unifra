@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.database import engine,get_db,Base
 from app import models
 
-Base.metadata.create_all(bind=engine)
+#Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 @app.get("/")

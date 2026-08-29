@@ -11,7 +11,7 @@ services:
       db:
         condition : service_healthy
     volumes:
-      - ./App:/app/App  #optional : live-reload during dev
+      - .:/app  #optional : live-reload during dev   #i mounted the the whole app foder onto container cz claude is saying blabla ---- basically to get "alembic version" codes on my disk and check
 
   db:                   
     image: postgres:16-alpine
