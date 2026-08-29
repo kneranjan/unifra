@@ -1,0 +1,5 @@
+.env
+venvUnifra/
+__pycache__/
+*.pyc
+.vscode/
