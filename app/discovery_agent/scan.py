@@ -48,7 +48,7 @@ def scan_ports(ip: str) -> dict:
         for _ in host_info.all_protocols():
             ports = host_info[_].keys()
             for port in ports:
-                port_info = host_info[proto][port]
+                port_info = host_info[_][port]
                 if port_info["state"] == "open":
                     open_ports.append({
                         "port": port,
@@ -84,10 +84,3 @@ if __name__ == "__main__":
         for h in hosts:
             port_results = scan_ports(h["ip"])
             print(json.dumps(port_results, indent=2))
-
-
-    
-        
-
-
-    
