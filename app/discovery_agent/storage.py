@@ -23,6 +23,8 @@ def save_hosts(hosts):
         if h["mac"] is not None:
           existing.mac = h["mac"]
           existing.vendor = h["vendor"]
+        if h["hostname"] is not None:
+          existing.hostname = h["hostname"]
         updated_count += 1
       else:
         # Never seen: insert a new row
@@ -31,6 +33,7 @@ def save_hosts(hosts):
           mac=h["mac"],
           vendor=h["vendor"],
           status=h["status"],
+          hostname = h["hostname"],
         ))
         new_count += 1
 
@@ -58,6 +61,7 @@ def update_ports():
         continue
 
       host.open_ports = result["open_ports"]
+      host.os_guess = result["os_guess"]
       db.commit()
       scanned += 1
       print(f"{host.ip}: {len(result['open_ports'])} open ports")

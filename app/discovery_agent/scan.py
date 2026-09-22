@@ -1,5 +1,11 @@
 """
 Discovery Agent - Host Discovery   basically port scannner
+
+crazy stuff to remember:
+nmap cant get your device's mac address
+
+
+
 """
 
 import sys
@@ -14,22 +20,32 @@ def discover_hosts(subnet: str) -> list[dict]:
     scanner = nmap.PortScanner()
 
     scanner.scan(hosts=subnet, arguments="-sn")
+
+
+
     results = []  # list of discovered hosts
     for host in scanner.all_hosts():
         host_info = scanner[host]
+
         mac = None
+        mac = host_info["addresses"].get("mac")
         vendor = None
 
-        if "mac" in host_info["addresses"]:
-            mac = host_info["addresses"]["mac"]
-        vendor = host_info.get("vendor", {}).get(mac, "Unknown") 
+        if mac is not  None:
+            vendor = host_info.get("vendor",{}).get(mac,"Unknown")
+
+        hostname = host_info.hostname()
+
+        if hostname == "":
+            hostname = None
 
         results.append({
             "ip":host,
             "mac":mac,
             "vendor":vendor,
-            "status":host_info.state(),
-        })
+            "hostname":hostname,
+            "status": host_info.state(),
+        })       
 
     return results
 
@@ -38,12 +54,18 @@ def discover_hosts(subnet: str) -> list[dict]:
 
 def scan_ports(ip: str) -> dict:
     scanner = nmap.PortScanner()
-    scanner.scan(hosts=ip, arguments="-sV")
+    scanner.scan(hosts=ip, arguments="-sV -O")
 
     open_ports = []
+    os_guess = None
 
     if ip in scanner.all_hosts():
         host_info = scanner[ip]
+        os_matches = host_info.get("osmatch",[])
+
+        if len(os_matches) > 0:
+            best_match = os_matches[0]
+            os_guess = best_match["name"]
 
         for _ in host_info.all_protocols():
             ports = host_info[_].keys()
@@ -51,17 +73,19 @@ def scan_ports(ip: str) -> dict:
                 port_info = host_info[_][port]
                 if port_info["state"] == "open":
                     open_ports.append({
-                        "port": port,
-                        "protocol": _,
-                        "service": port_info.get("name", "unknown"),
-                        "product": port_info.get("product", ""),
-                        "version": port_info.get("version", ""),
+                        "port":port,
+                        "protocol":_,
+                        "service": port_info.get("name","unknown"),
+                        "product":port_info.get("product","Product is not recognisable"),
+                        "version":port_info.get("version","Version is not recognisable"),
                     })
+    return{
+        "ip":ip,
+        "open_ports":open_ports,
+        "os_guess":os_guess,
+    }                    
 
-    return {
-        "ip": ip,
-        "open_ports": open_ports,
-    }      
+           
 
 
 if __name__ == "__main__":

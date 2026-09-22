@@ -16,6 +16,8 @@ class DiscoveredHost(Base):
   ip= Column(String,nullable=False,unique=True)
   mac = Column(String,nullable=True)
   vendor = Column(String,nullable=True)
+  hostname = Column(String,nullable=True)
+  os_guess = Column(String,nullable=True)
   status = Column(String,nullable=False,default="up")
   open_ports = Column(JSON,nullable=True)
   first_seen = Column(DateTime(timezone = True),server_default = func.now(),nullable = False)
