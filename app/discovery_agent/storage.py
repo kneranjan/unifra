@@ -2,6 +2,7 @@ from sqlalchemy import func
 from app.database import SessionLocal
 from app import models
 from app.discovery_agent.scan import discover_hosts , scan_ports
+import time
 
 
 def save_hosts(hosts):
@@ -85,18 +86,27 @@ def mark_down_hosts(seen_ips):
     
   db.commit()
   db.close()
-  return count  
+  return count
 
 
-if __name__ == "__main__":
+def run_scan():
   hosts = discover_hosts("192.168.1.0/24")
-  new, updated = save_hosts(hosts)
-  print(f"Scan saved: {new} new, {updated} updated")
+  new,updated = save_hosts(hosts)
+  print(f"Scan Saved: {new} new, {updated} updated")
 
   seen_ips = [h["ip"] for h in hosts]
   down = mark_down_hosts(seen_ips)
-  print(f"Marked Down: {down}")
-
+  print(f"Marked down: {down}")
 
   scanned = update_ports()
   print(f"Ports updated for {scanned} hosts")
+
+
+if __name__ == "__main__":
+  
+
+  SCAN_INTERVAL = 300 #5 mins = 300 sec
+  while True:
+    run_scan()
+    print(f"unifri is sleeping for {SCAN_INTERVAL} seconds")
+    time.sleep(SCAN_INTERVAL)
