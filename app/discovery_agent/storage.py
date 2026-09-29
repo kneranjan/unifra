@@ -88,6 +88,31 @@ def mark_down_hosts(seen_ips):
   db.close()
   return count
 
+def save_links(gateway_ip):
+  db = SessionLocal()
+  count = 0
+
+  up_hosts = db.query(models.DiscoveredHost).filter(models.DiscoveredHost.status == "up").all()
+
+  for host in up_hosts:
+    #skip the gateway
+    if host.ip == gateway_ip:
+      continue
+
+    #check for existing n/w links
+    existing = db.query(models.NetworkLink).filter(models.NetworkLink.source_ip == host.ip).filter(models.NetworkLink.target_ip == gateway_ip).first()
+
+    if existing:
+      existing.last_seen = func.now()
+    else:
+      db.add(models.NetworkLink(source_ip = host.ip, target_ip = gateway_ip))
+      count+=1
+
+  db.commit()
+  db.close()
+  return count        
+
+
 
 def run_scan():
   hosts = discover_hosts("192.168.1.0/24")
@@ -100,6 +125,10 @@ def run_scan():
 
   scanned = update_ports()
   print(f"Ports updated for {scanned} hosts")
+
+  links = save_links("192.168.1.1")
+  print(f"New links saved : {links}")
+
 
 
 if __name__ == "__main__":

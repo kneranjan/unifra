@@ -24,7 +24,14 @@ class DiscoveredHost(Base):
   last_seen = Column(DateTime(timezone = True),server_default = func.now(),nullable = False)
   
 
+class NetworkLink(Base):
+  __tablename__ = "network_links"
 
+  id = Column(Integer,primary_key=True,index=True)
+  source_ip = Column(String,nullable=False)
+  target_ip = Column(String,nullable=False)
+  link_type = Column(String,nullable=False,default="gateway")
+  last_seen = Column(DateTime(timezone = True),server_default = func.now(),nullable = False)
 
 
 
