@@ -71,10 +71,32 @@ def update_ports():
   return scanned
 
 
+
+def mark_down_hosts(seen_ips):
+  db = SessionLocal()
+  count = 0
+  #get all hosts that are marked "up" in the db
+  up_hosts = db.query(models.DiscoveredHost).filter(models.DiscoveredHost.status=="up").all()
+
+  for host in up_hosts:
+    if host.ip not in seen_ips:
+      host.status = "down"
+      count += 1
+    
+  db.commit()
+  db.close()
+  return count  
+
+
 if __name__ == "__main__":
   hosts = discover_hosts("192.168.1.0/24")
   new, updated = save_hosts(hosts)
   print(f"Scan saved: {new} new, {updated} updated")
+
+  seen_ips = [h["ip"] for h in hosts]
+  down = mark_down_hosts(seen_ips)
+  print(f"Marked Down: {down}")
+
 
   scanned = update_ports()
   print(f"Ports updated for {scanned} hosts")
