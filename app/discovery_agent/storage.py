@@ -168,31 +168,35 @@ def mark_removed_containers(seen_ids):
 
 
 def run_scan():
-  containers = discover_containers()
-  new,updated = save_containers(containers)
-  print(f"Containers saved: {new} new , {updated} updated")
+  # 1. Hosts
   hosts = discover_hosts(SCAN_SUBNET)
-  new,updated = save_hosts(hosts)
-  print(f"Scan Saved: {new} new, {updated} updated")
+  new, updated = save_hosts(hosts)
+  print(f"Scan saved: {new} new, {updated} updated")
 
+  # 2. Mark vanished hosts as down (skip if nothing was found)
   seen_ips = [h["ip"] for h in hosts]
-  removed_containers = mark_removed_containers(seen_ids)
-  print(f"Containers removde: {removed_containers}")
-
   if len(seen_ips) == 0:
-    print("Warning, No hosts found,skiIP marking down")
+    print("Warning: no hosts found, skipping mark down")
   else:
     down = mark_down_hosts(seen_ips)
-    print(f"Marked down: {down}")  
+    print(f"Marked down: {down}")
 
-  down = mark_down_hosts(seen_ips)
-  print(f"Marked down: {down}")
-
+  # 3. Ports and OS
   scanned = update_ports()
   print(f"Ports updated for {scanned} hosts")
 
+  # 4. Links
   links = save_links(GATEWAY_IP)
-  print(f"New links saved : {links}")
+  print(f"New links saved: {links}")
+
+  # 5. Containers (last, so a Docker problem doesn't block the host scan)
+  containers = discover_containers()
+  new, updated = save_containers(containers)
+  print(f"Containers saved: {new} new, {updated} updated")
+
+  seen_ids = [c["container_id"] for c in containers]
+  removed = mark_removed_containers(seen_ids)
+  print(f"Containers removed: {removed}")
 
 
 
