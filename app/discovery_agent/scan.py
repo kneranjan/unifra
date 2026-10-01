@@ -108,3 +108,4 @@ if __name__ == "__main__":
         for h in hosts:
             port_results = scan_ports(h["ip"])
             print(json.dumps(port_results, indent=2))
+    

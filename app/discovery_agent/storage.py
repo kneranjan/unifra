@@ -2,6 +2,7 @@ from sqlalchemy import func
 from app.database import SessionLocal
 from app import models
 from app.discovery_agent.scan import discover_hosts , scan_ports
+from app.discovery_agent.docker_scan import discover_containers
 import time
 
 
@@ -114,7 +115,38 @@ def save_links(gateway_ip):
 
 
 
+def save_containers(containers):
+  db = SessionLocal()
+  new = 0
+  updated = 0
+
+  for c in containers:
+    existing = db.query(models.Container).filter(models.Container.container_id == c["container_id"]).first()
+
+    if existing:
+      existing.state = c["state"]
+      existing.name = c["name"]
+      existing.image = c["image"]
+      existing.last_seen = func.now()
+      updated+=1
+    else:
+      db.add(models.Container(
+          container_id = c["container_id"],
+          name = c["name"],
+          image = c["image"],
+          state = c["state"],
+      ))
+      new+=1
+
+  db.commit()
+  db.close()
+  return new,updated  
+
+
 def run_scan():
+  containers = discover_containers()
+  new,updated = save_containers(containers)
+  print(f"Containers saved: {new} new , {updated} updated")
   hosts = discover_hosts("192.168.1.0/24")
   new,updated = save_hosts(hosts)
   print(f"Scan Saved: {new} new, {updated} updated")

@@ -35,4 +35,17 @@ class NetworkLink(Base):
 
 
 
+class Container(Base):
+  __tablename__ = "containers"
+
+  id = Column(Integer,primary_key=True,index=False)
+  container_id = Column(String,nullable=False,unique=True)
+  name = Column(String,nullable=False)
+  image = Column(String,nullable=False)
+  state = Column(String,nullable=False)
+  first_seen = Column(DateTime(timezone=True),server_default=func.now(),nullable=False)
+  last_seen = Column(DateTime(timezone=True),server_default=func.now(),nullable=False)
+
+
+
   
