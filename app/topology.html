@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Unifra Topology</title>
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <style>
+    body { font-family: sans-serif; margin: 0; background: #111; color: #eee; }
+    #bar { padding: 10px 16px; background: #1b1b1b; }
+    #graph { height: calc(100vh - 44px); }
+  </style>
+</head>
+<body>
+  <div id="bar">
+    Unifra network topology &nbsp;
+    <span style="color:#4caf50">&#9679; up</span>
+    <span style="color:#f44336">&#9679; down</span>
+    <span style="color:#2196f3">&#9679; gateway</span>
+  </div>
+  <div id="graph"></div>
+  <script>
+    async function draw() {
+      const res = await fetch("/topology/");
+      const data = await res.json();
+
+      const gateways = new Set(data.edges.map(e => e.to));
+      const nodes = data.nodes.map(n => ({
+        id: n.id,
+        label: n.label,
+        title: n.title,
+        shape: gateways.has(n.id) ? "box" : "dot",
+        color: gateways.has(n.id) ? "#2196f3" : (n.status === "up" ? "#4caf50" : "#f44336"),
+        font: { color: "#eee" },
+      }));
+      const edges = data.edges.map(e => ({ from: e.from, to: e.to, color: "#888" }));
+
+      new vis.Network(
+        document.getElementById("graph"),
+        { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) },
+        { physics: { stabilization: true } }
+      );
+    }
+    draw();
+  </script>
+</body>
+</html>
