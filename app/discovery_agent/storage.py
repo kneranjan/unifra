@@ -146,7 +146,25 @@ def save_containers(containers):
 
   db.commit()
   db.close()
-  return new,updated  
+  return new,updated 
+
+
+
+def mark_removed_containers(seen_ids):
+  db = SessionLocal()
+  count = 0
+
+   # Get all containers that are not already marked "removed"
+  rows = db.query(models.Container).filter(models.Container.state != "removed").all()
+
+  for row in rows:
+    if row.container_id not in seen_ids:
+      row.state = "removed"
+      count+=1
+
+  db.commit()
+  db.close()
+  return count    
 
 
 def run_scan():
@@ -158,6 +176,15 @@ def run_scan():
   print(f"Scan Saved: {new} new, {updated} updated")
 
   seen_ips = [h["ip"] for h in hosts]
+  removed_containers = mark_removed_containers(seen_ids)
+  print(f"Containers removde: {removed_containers}")
+
+  if len(seen_ips) == 0:
+    print("Warning, No hosts found,skiIP marking down")
+  else:
+    down = mark_down_hosts(seen_ips)
+    print(f"Marked down: {down}")  
+
   down = mark_down_hosts(seen_ips)
   print(f"Marked down: {down}")
 
@@ -174,6 +201,9 @@ if __name__ == "__main__":
 
   SCAN_INTERVAL = 300 #5 mins = 300 sec
   while True:
-    run_scan()
+    try:
+      run_scan()
+    except Exception as e:
+      print(f"Scan failed due to: {e}")  
     print(f"unifri is sleeping for {SCAN_INTERVAL} seconds")
     time.sleep(SCAN_INTERVAL)
