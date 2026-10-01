@@ -4,7 +4,13 @@ from app import models
 from app.discovery_agent.scan import discover_hosts , scan_ports
 from app.discovery_agent.docker_scan import discover_containers
 import time
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
+
+SCAN_SUBNET = os.getenv("SCAN_SUBNET", "192.168.1.0/24")
+GATEWAY_IP = os.getenv("GATEWAY_IP", "192.168.1.1")
 
 def save_hosts(hosts):
   db = SessionLocal()
@@ -147,7 +153,7 @@ def run_scan():
   containers = discover_containers()
   new,updated = save_containers(containers)
   print(f"Containers saved: {new} new , {updated} updated")
-  hosts = discover_hosts("192.168.1.0/24")
+  hosts = discover_hosts(SCAN_SUBNET)
   new,updated = save_hosts(hosts)
   print(f"Scan Saved: {new} new, {updated} updated")
 
@@ -158,7 +164,7 @@ def run_scan():
   scanned = update_ports()
   print(f"Ports updated for {scanned} hosts")
 
-  links = save_links("192.168.1.1")
+  links = save_links(GATEWAY_IP)
   print(f"New links saved : {links}")
 
 
