@@ -6,6 +6,7 @@ from app.discovery_agent.docker_scan import discover_containers
 import time
 import os
 from dotenv import load_dotenv
+import socket
 
 load_dotenv()
 
@@ -120,11 +121,21 @@ def save_links(gateway_ip):
   return count        
 
 
+def get_my_ip():
+  try:
+    s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)   # using UDP here not TCP SPEDDEEEEDEDED
+    s.connect((GATEWAY_IP,80))
+    ip = s.getsockname()[0]
+    s.close()
+    return ip
+  except Exception:
+    return None
 
 def save_containers(containers):
   db = SessionLocal()
   new = 0
   updated = 0
+  my_ip = get_my_ip()
 
   for c in containers:
     existing = db.query(models.Container).filter(models.Container.container_id == c["container_id"]).first()
@@ -134,6 +145,7 @@ def save_containers(containers):
       existing.name = c["name"]
       existing.image = c["image"]
       existing.last_seen = func.now()
+      existing.host_ip = my_ip
       updated+=1
     else:
       db.add(models.Container(
@@ -141,6 +153,7 @@ def save_containers(containers):
           name = c["name"],
           image = c["image"],
           state = c["state"],
+          host_ip = my_ip,
       ))
       new+=1
 

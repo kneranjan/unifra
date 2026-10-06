@@ -45,6 +45,7 @@ class Container(Base):
   state = Column(String,nullable=False)
   first_seen = Column(DateTime(timezone=True),server_default=func.now(),nullable=False)
   last_seen = Column(DateTime(timezone=True),server_default=func.now(),nullable=False)
+  host_ip = Column(String,nullable=True)
 
 
 

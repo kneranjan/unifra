@@ -5,7 +5,10 @@ from app.database import engine,get_db,Base
 from app import models
 from pathlib import Path
 from fastapi.responses import HTMLResponse
+from app.discovery_agent.classify import guess_device_type
+import os
 
+GATEWAY_IP = os.getenv("GATEWAY_IP","")
 #Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
@@ -58,6 +61,7 @@ def get_topology(db: Session = Depends(get_db)):
       "label": h.hostname or h.ip,
       "title": f"{h.ip}\n{h.vendor or 'Unknown vendor'}\n{h.os_guess or 'OS unknown'}",
       "status": h.status,
+      "device_type": guess_device_type(h,GATEWAY_IP),
     }
     for h in hosts
   ]
