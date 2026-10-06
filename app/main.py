@@ -54,6 +54,7 @@ def list_containers(db: Session = Depends(get_db)):
 def get_topology(db: Session = Depends(get_db)):
   hosts = db.query(models.DiscoveredHost).all()
   links = db.query(models.NetworkLink).all()
+  containers = db.query(models.Container).filter(models.Container.state != "removed").all()
 
   nodes = [
     {
@@ -61,11 +62,25 @@ def get_topology(db: Session = Depends(get_db)):
       "label": h.hostname or h.ip,
       "title": f"{h.ip}\n{h.vendor or 'Unknown vendor'}\n{h.os_guess or 'OS unknown'}",
       "status": h.status,
-      "device_type": guess_device_type(h,GATEWAY_IP),
+      "device_type": guess_device_type(h, GATEWAY_IP),
     }
     for h in hosts
   ]
+
   edges = [{"from": l.source_ip, "to": l.target_ip, "type": l.link_type} for l in links]
+
+  for c in containers:
+    node_id = f"container-{c.container_id}"
+    nodes.append({
+      "id": node_id,
+      "label": c.name,
+      "title": f"{c.name}\n{c.image}\n{c.state}",
+      "status": "up" if c.state == "running" else "down",
+      "device_type": "container",
+    })
+
+    if c.host_ip:
+      edges.append({"from": node_id, "to": c.host_ip, "type": "container"})
 
   return {"nodes": nodes, "edges": edges}
 

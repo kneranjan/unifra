@@ -8,39 +8,180 @@
     body { font-family: sans-serif; margin: 0; background: #111; color: #eee; }
     #bar { padding: 10px 16px; background: #1b1b1b; }
     #graph { height: calc(100vh - 44px); }
+    #details {
+      display: none;
+      position: fixed; top: 54px; right: 12px; width: 300px;
+      max-height: calc(100vh - 80px); overflow-y: auto;
+      background: #1b1b1b; border: 1px solid #333; border-radius: 8px;
+      padding: 12px 16px; font-size: 14px;
+    }
+    #details h3 { margin: 0 0 8px 0; font-size: 16px; }
+    #details table { width: 100%; border-collapse: collapse; }
+    #details td { padding: 3px 0; vertical-align: top; }
+    #details td:first-child { color: #888; width: 90px; }
+    #details .close { float: right; cursor: pointer; color: #888; }
+    #details .ports { margin: 6px 0 0 0; padding-left: 18px; }
   </style>
 </head>
 <body>
   <div id="bar">
     Unifra network topology &nbsp;
-    <span style="color:#4caf50">&#9679; up</span>
+    <span style="color:#2196f3">&#9670; router</span>
+    <span style="color:#ff9800">&#9632; server</span>
+    <span style="color:#4caf50">&#9679; pc</span>
+    <span style="color:#9c27b0">&#9679; phone</span>
+    <span style="color:#888">&#9679; unknown</span>
+    <span style="color:#00bcd4">&#9632; container</span>
     <span style="color:#f44336">&#9679; down</span>
-    <span style="color:#2196f3">&#9679; gateway</span>
+    &nbsp; <span id="updated" style="color:#888"></span>
   </div>
   <div id="graph"></div>
+  <div id="details"></div>
   <script>
-    async function draw() {
-      const res = await fetch("/topology/");
-      const data = await res.json();
+    const TYPE_STYLE = {
+      router:    { shape: "diamond", color: "#2196f3" },
+      server:    { shape: "square",  color: "#ff9800" },
+      pc:        { shape: "dot",     color: "#4caf50" },
+      phone:     { shape: "dot",     color: "#9c27b0" },
+      unknown:   { shape: "dot",     color: "#888"    },
+      container: { shape: "box",     color: "#00bcd4" },
+    };
 
-      const gateways = new Set(data.edges.map(e => e.to));
-      const nodes = data.nodes.map(n => ({
-        id: n.id,
-        label: n.label,
-        title: n.title,
-        shape: gateways.has(n.id) ? "box" : "dot",
-        color: gateways.has(n.id) ? "#2196f3" : (n.status === "up" ? "#4caf50" : "#f44336"),
-        font: { color: "#eee" },
-      }));
-      const edges = data.edges.map(e => ({ from: e.from, to: e.to, color: "#888" }));
+    // Create the graph once; refresh() only updates its data.
+    const nodesDS = new vis.DataSet();
+    const edgesDS = new vis.DataSet();
+    const network = new vis.Network(
+      document.getElementById("graph"),
+      { nodes: nodesDS, edges: edgesDS },
+      { physics: { stabilization: true } }
+    );
 
-      new vis.Network(
-        document.getElementById("graph"),
-        { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) },
-        { physics: { stabilization: true } }
+    // Escape text before putting it in the page (vendor names etc. come from the network)
+    function esc(value) {
+      const d = document.createElement("div");
+      d.textContent = value === null || value === undefined || value === "" ? "-" : String(value);
+      return d.innerHTML;
+    }
+
+    function row(label, value) {
+      return `<tr><td>${label}</td><td>${esc(value)}</td></tr>`;
+    }
+
+    function showDetails(html) {
+      const panel = document.getElementById("details");
+      panel.innerHTML = `<span class="close" onclick="hideDetails()">&#10005;</span>` + html;
+      panel.style.display = "block";
+    }
+
+    function hideDetails() {
+      document.getElementById("details").style.display = "none";
+    }
+
+    async function showHost(id) {
+      const node = nodesDS.get(id);
+      const res = await fetch(`/hosts/${id}`);
+      if (!res.ok) {
+        showDetails(`<h3>${esc(id)}</h3><p>No details found.</p>`);
+        return;
+      }
+      const h = await res.json();
+      const ports = (h.open_ports || []).map(p =>
+        `<li>${esc(p.port)}/${esc(p.protocol)} ${esc(p.service)} ${esc(p.product)} ${esc(p.version)}</li>`
+      ).join("");
+      showDetails(
+        `<h3>${esc(h.hostname || h.ip)}</h3>` +
+        `<table>` +
+        row("IP", h.ip) +
+        row("Type", node ? node.device_type : "") +
+        row("Status", h.status) +
+        row("MAC", h.mac) +
+        row("Vendor", h.vendor) +
+        row("OS", h.os_guess) +
+        row("Last seen", h.last_seen) +
+        `</table>` +
+        `<p style="margin:10px 0 0 0;color:#888">Open ports</p>` +
+        (ports ? `<ul class="ports">${ports}</ul>` : `<p style="margin:4px 0 0 0">none found</p>`)
       );
     }
-    draw();
+
+    async function showContainer(id) {
+      const containerId = id.replace("container-", "");
+      const res = await fetch("/containers/");
+      const list = await res.json();
+      const c = list.find(x => x.container_id === containerId);
+      if (!c) {
+        showDetails(`<h3>Container</h3><p>No details found.</p>`);
+        return;
+      }
+      showDetails(
+        `<h3>${esc(c.name)}</h3>` +
+        `<table>` +
+        row("Image", c.image) +
+        row("State", c.state) +
+        row("Host", c.host_ip) +
+        row("Last seen", c.last_seen) +
+        `</table>`
+      );
+    }
+
+    network.on("click", params => {
+      if (params.nodes.length === 0) {
+        hideDetails();
+        return;
+      }
+      const id = params.nodes[0];
+      if (String(id).startsWith("container-")) {
+        showContainer(id);
+      } else {
+        showHost(id);
+      }
+    });
+
+    async function refresh() {
+      try {
+        const res = await fetch("/topology/");
+        const data = await res.json();
+
+        const nodes = data.nodes.map(n => {
+          const style = TYPE_STYLE[n.device_type] || TYPE_STYLE.unknown;
+          return {
+            id: n.id,
+            label: n.label,
+            title: n.title,
+            device_type: n.device_type,
+            shape: style.shape,
+            color: n.status === "down" ? "#f44336" : style.color,
+            font: { color: "#eee" },
+          };
+        });
+
+        const edges = data.edges.map(e => ({
+          id: `${e.from}-${e.to}`,
+          from: e.from,
+          to: e.to,
+          color: "#888",
+          dashes: e.type === "container",
+        }));
+
+        // Add new items and update existing ones
+        nodesDS.update(nodes);
+        edgesDS.update(edges);
+
+        // Remove items that no longer exist
+        const newNodeIds = nodes.map(n => n.id);
+        nodesDS.remove(nodesDS.getIds().filter(id => !newNodeIds.includes(id)));
+        const newEdgeIds = edges.map(e => e.id);
+        edgesDS.remove(edgesDS.getIds().filter(id => !newEdgeIds.includes(id)));
+
+        document.getElementById("updated").textContent =
+          "updated " + new Date().toLocaleTimeString();
+      } catch (err) {
+        document.getElementById("updated").textContent = "update failed";
+      }
+    }
+
+    refresh();
+    setInterval(refresh, 30000);
   </script>
 </body>
 </html>
