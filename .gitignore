@@ -3,3 +3,4 @@ venvUnifra/
 __pycache__/
 *.pyc
 .vscode/
+*.db
