@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Unifra — AI-Powered Hybrid Infrastructure & AWS Optimization</title>
+    <meta
+      name="description"
+      content="Intelligent observability for hybrid infrastructure. Unifra unifies AWS cloud metrics, on-prem networks, and edge MCU sensors into one OpenTelemetry platform."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/css/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+
+    <div class="top-banner">
+      Experience AI-driven hybrid operations at scale.
+      <a href="/topology/view">Launch Network Topology View →</a>
+    </div>
+
+    <header class="site-header">
+      <nav class="nav-pill" aria-label="Primary">
+        <a class="logo" href="/">
+          <svg viewBox="0 0 28 28" aria-hidden="true">
+            <circle cx="14" cy="14" r="13" fill="none" stroke="#1ce783" stroke-width="2" />
+            <path d="M8 18c3-8 9-8 12 0" fill="none" stroke="#1ce783" stroke-width="2.2" stroke-linecap="round" />
+            <circle cx="14" cy="10" r="2.2" fill="#1ce783" />
+          </svg>
+          unifra
+        </a>
+        <ul class="nav-links">
+          <li>
+            <button class="nav-drop" data-menu="platform" aria-expanded="false">Platform</button>
+            <div class="mega" id="menu-platform">
+              <a href="/topology/view"><strong>Interactive Topology Map</strong><span>Live vis-network topology of discovered hosts</span></a>
+              <a href="/hosts/"><strong>Discovered Hosts API</strong><span>Real-time IP, MAC &amp; OS classification</span></a>
+              <a href="/containers/"><strong>Container Scanner</strong><span>Docker &amp; K8s container state API</span></a>
+            </div>
+          </li>
+          <li>
+            <button class="nav-drop" data-menu="solutions" aria-expanded="false">Solutions</button>
+            <div class="mega" id="menu-solutions">
+              <a href="#solutions"><strong>AWS Optimizer</strong><span>Real-time Boto3 ingestion &amp; cost control</span></a>
+              <a href="#solutions"><strong>Hybrid DCIM</strong><span>Data center &amp; physical rack monitoring</span></a>
+              <a href="#solutions"><strong>Enterprise Banking &amp; Telecom</strong><span>Zero inbound ports, strict approval controls</span></a>
+            </div>
+          </li>
+          <li>
+            <button class="nav-drop" data-menu="pricing" aria-expanded="false">Pricing</button>
+            <div class="mega" id="menu-pricing">
+              <a href="#pricing"><strong>Free tier</strong><span>100 GB + 1 user, no credit card needed</span></a>
+              <a href="#pricing"><strong>Standard</strong><span>For mid-level hybrid infrastructure orgs</span></a>
+              <a href="#pricing"><strong>Enterprise</strong><span>Multi-cloud scale, governance &amp; 24/7 support</span></a>
+            </div>
+          </li>
+          <li><a href="#customers">Customers</a></li>
+          <li>
+            <button class="nav-drop" data-menu="resources" aria-expanded="false">Resources</button>
+            <div class="mega" id="menu-resources">
+              <a href="#resources"><strong>Architecture PDF</strong><span>Detailed system data flow &amp; Agno stack</span></a>
+              <a href="#resources"><strong>Documentation</strong><span>APIs, Python Boto3 &amp; SNMP integration</span></a>
+              <a href="#resources"><strong>Security Model</strong><span>Outbound-only agent architecture</span></a>
+            </div>
+          </li>
+        </ul>
+        <button class="hamburger" aria-label="Open menu" type="button">
+          <span></span><span></span>
+        </button>
+      </nav>
+      <div class="nav-actions">
+        <button class="icon-btn search-btn" aria-label="Search" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.2-3.2"/></svg>
+        </button>
+        <a class="icon-btn account" href="#login" aria-label="Log in">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.2"/><path d="M5 19c1.4-3.2 4-5 7-5s5.6 1.8 7 5"/></svg>
+        </a>
+        <a class="btn btn-green" href="/topology/view">View Topology Map</a>
+        <a class="btn btn-ghost-dark" href="#demo">Get Demo</a>
+      </div>
+    </header>
+
+    <div class="mobile-drawer" hidden>
+      <a href="/topology/view">Topology Map</a>
+      <a href="/hosts/">Discovered Hosts</a>
+      <a href="/containers/">Containers</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#resources">Resources</a>
+      <a class="btn btn-green" href="/topology/view">View Topology Map</a>
+    </div>
+
+    <main id="main">
+      <!-- HERO SECTION -->
+      <section class="hero" id="top">
+        <div class="hero-copy">
+          <h1>
+            HYBRID INFRA<br />
+            THAT<br />
+            <span class="rotator" aria-live="polite">
+              <span class="word is-active">UNIFIES</span>
+              <span class="word">PREDICTS</span>
+              <span class="word">OPTIMIZES</span>
+              <span class="word">ACTS</span>
+              <span class="word">PROTECTS</span>
+            </span>
+          </h1>
+          <p>
+            Stop fragmenting your operations across separate tools. Unifra unifies cloud costs, on-prem networks, and edge sensors into one AI platform.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-dark" href="/topology/view">View Topology Map</a>
+            <a class="btn btn-cream" href="#demo">Request Demo</a>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="visual-stage">
+            <!-- SLIDE 0: Edge & Network Monitoring -->
+            <article class="dash-card is-active" data-slide="0">
+              <div class="dash-head">
+                <span class="pulse"></span>
+                Edge Sensor &amp; Network Topology
+              </div>
+              <div class="session-grid">
+                <div class="session-tile">
+                  <div class="chart-bars">
+                    <span style="--h:65%"></span><span style="--h:85%"></span><span style="--h:50%"></span><span style="--h:95%"></span>
+                  </div>
+                  <strong>Discovery Agent Status</strong>
+                  <em>Active · Nmap &amp; PySNMP</em>
+                </div>
+                <div class="session-tile">
+                  <div class="donut"></div>
+                  <strong>Network Devices</strong>
+                  <em>Real-time Mapping</em>
+                </div>
+              </div>
+              <p class="dash-note"><span class="dot" style="background:#1ce783"></span> OpenTelemetry &amp; PostgreSQL Pipeline · Active</p>
+            </article>
+
+            <!-- SLIDE 1: AI Agent Orchestrator -->
+            <article class="dash-card" data-slide="1">
+              <div class="dash-head">
+                <span class="spark">✦</span>
+                AI Agent Orchestrator (Agno)
+              </div>
+              <div class="agent-log">
+                <p><strong>Correlation Agent:</strong> Latency spike detected on US-East EC2 subnet 10.0.4.0/24.</p>
+                <p>Root Cause correlated via trace_id <code>#tr-98421</code> to Docker container network interface.</p>
+                <pre>RECOMMENDATION: Scale EC2 instance group &amp; re-route switch VLAN.
+STATUS: Awaiting User Approval (Y/N)</pre>
+              </div>
+              <p class="dash-caption">AI recommendations with mandatory human control approval.</p>
+            </article>
+
+            <!-- SLIDE 2: AWS Cost Intelligence -->
+            <article class="dash-card" data-slide="2">
+              <div class="dash-head">
+                <span class="spark">◈</span>
+                AWS Cost Intelligence
+              </div>
+              <div class="cost-row">
+                <div><small>AWS EC2 / Boto3</small><strong>$18.4k</strong><span class="down">−18%</span></div>
+                <div><small>On-Prem DCIM</small><strong>$4.2k</strong><span class="down">−8%</span></div>
+              </div>
+              <svg class="sparkline" viewBox="0 0 240 72" preserveAspectRatio="none">
+                <path d="M0 50 C40 45 50 15 80 22 S130 55 160 25 S210 8 240 14" fill="none" stroke="#1CE783" stroke-width="2.5"/>
+              </svg>
+              <p class="dash-caption">Real-time AWS billing ingestion paired with TimescaleDB history.</p>
+            </article>
+          </div>
+
+          <div class="carousel-nav">
+            <button type="button" class="circle-btn" data-dir="-1" aria-label="Previous slide">←</button>
+            <button type="button" class="circle-btn" data-dir="1" aria-label="Next slide">→</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- LOGO TRACK -->
+      <section class="logos" id="customers" aria-label="Trusted by">
+        <p>Trusted by hybrid infra teams in</p>
+        <div class="logo-track">
+          <span>GLOBAL BANKING</span>
+          <span>HEALTHCARE SYSTEMS</span>
+          <span>TELECOM NETWORKS</span>
+          <span>DCIM OPERATORS</span>
+          <span>ENTERPRISE CLOUD</span>
+          <span>EDGE COMPUTE ORGS</span>
+        </div>
+      </section>
+
+      <!-- FEATURES GRID -->
+      <section class="features" id="ai-agents">
+        <div class="feature-grid">
+          <article>
+            <h3>Cost Agent</h3>
+            <p>Analyzes AWS billing and compute utilization via Python Boto3 to eliminate wasted cloud spend.</p>
+          </article>
+          <article>
+            <h3>Health Agent</h3>
+            <p>Predicts equipment and server failures across on-prem DCIMs and cloud clusters before downtime hits.</p>
+          </article>
+          <article>
+            <h3>API Perf Agent</h3>
+            <p>Monitors endpoint latency, throughput, and error budgets across microservices and edge gateways.</p>
+          </article>
+          <article>
+            <h3>Correlation Agent</h3>
+            <p>Accelerates MTTD and MTTR by instantly mapping trace_ids, resource_ids, and time windows.</p>
+          </article>
+          <article>
+            <h3>OpenTelemetry Core</h3>
+            <p>Unifies metrics (Prometheus), logs (Loki), traces (Tempo), and events into one open pipeline.</p>
+          </article>
+          <article>
+            <h3>User-in-the-Loop Control</h3>
+            <p>Automated execution functions trigger remediation only after explicit user approval.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- TOOLKIT TABS -->
+      <section class="toolkit" id="toolkit">
+        <p class="eyebrow">Complete Hybrid Observability</p>
+        <h2>Clarity for cloud, on-premise &amp; edge</h2>
+        <div class="tabs" role="tablist">
+          <button class="tab is-active" role="tab" aria-selected="true" data-tab="aws">AWS Optimization</button>
+          <button class="tab" role="tab" aria-selected="false" data-tab="discovery">Discovery Agent</button>
+          <button class="tab" role="tab" aria-selected="false" data-tab="edge">Edge Sensors</button>
+          <button class="tab" role="tab" aria-selected="false" data-tab="ai">Agno AI Stack</button>
+          <button class="tab" role="tab" aria-selected="false" data-tab="telemetry">OTel Collector</button>
+          <button class="tab" role="tab" aria-selected="false" data-tab="security">Zero-Trust Security</button>
+        </div>
+        <div class="tab-panels">
+          <div class="panel is-active" data-panel="aws">
+            <div class="panel-copy">
+              <h3>Real-time AWS Cloud Cost Optimization</h3>
+              <p>Connect AWS Boto3 metrics directly to storage in PostgreSQL and TimescaleDB for instant cost savings recommendations.</p>
+              <a class="text-link" href="/topology/view">Explore Live Topology →</a>
+            </div>
+            <div class="panel-visual apm-viz"></div>
+          </div>
+          <div class="panel" data-panel="discovery">
+            <div class="panel-copy">
+              <h3>Auto-Discovery for Network &amp; Infrastructure</h3>
+              <p>Lightweight Discovery Agents run Nmap, PySNMP, and Docker SDK scans to map device topologies without manual inventory entry.</p>
+              <a class="text-link" href="/hosts/">View Discovered Hosts →</a>
+            </div>
+            <div class="panel-visual dx-viz"></div>
+          </div>
+          <div class="panel" data-panel="edge">
+            <div class="panel-copy">
+              <h3>Physical MCU Edge Monitoring</h3>
+              <p>Track micro-controller temperature, current sensors, and server rack physical health seamlessly inside your unified dashboard.</p>
+              <a class="text-link" href="/topology/view">Explore Edge Network →</a>
+            </div>
+            <div class="panel-visual infra-viz"></div>
+          </div>
+          <div class="panel" data-panel="ai">
+            <div class="panel-copy">
+              <h3>Orchestrated AI Agents via Agno</h3>
+              <p>Empower your operations with specialized autonomous agents that analyze telemetry and correlate issues across layers.</p>
+              <a class="text-link" href="#ai-agents">Explore Agno Agents →</a>
+            </div>
+            <div class="panel-visual ai-viz"></div>
+          </div>
+          <div class="panel" data-panel="telemetry">
+            <div class="panel-copy">
+              <h3>Unified OpenTelemetry Backbone</h3>
+              <p>Stream logs, metrics, traces, and events through Prometheus, Loki, and Tempo with zero vendor lock-in.</p>
+              <a class="text-link" href="/containers/">View Active Containers →</a>
+            </div>
+            <div class="panel-visual logs-viz"></div>
+          </div>
+          <div class="panel" data-panel="security">
+            <div class="panel-copy">
+              <h3>Strict Outbound-Only Architecture</h3>
+              <p>Agents require read-only SNMP &amp; credentials with zero inbound open firewall ports. Control actions require explicit approval.</p>
+              <a class="text-link" href="#platform">Explore Security Model →</a>
+            </div>
+            <div class="panel-visual sec-viz"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- AI SECTION -->
+      <section class="ai-section" id="solutions">
+        <h2>Built for hybrid infrastructure &amp; DCIM complexity</h2>
+        <div class="ai-grid">
+          <article>
+            <h3>End Tool Fragmentation</h3>
+            <p>Replace 5 separate monitoring tools with one unified map of cloud billing, network switches, and physical sensors.</p>
+          </article>
+          <article>
+            <h3>Instant Root-Cause Analysis</h3>
+            <p>Trace agent reasoning from hardware sensors all the way to cloud API calls to eliminate guessing during incidents.</p>
+          </article>
+          <article>
+            <h3>Human-Approved Control</h3>
+            <p>Keep admins in total command. Action executor functions run only when explicitly approved by your team.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- SHIPWRECK BANNER -->
+      <section class="shipwreck" id="platform">
+        <div>
+          <p class="kicker">More uptime</p>
+          <h2>Unify your full hybrid stack. Free forever for starters.</h2>
+        </div>
+        <div>
+          <p class="kicker muted">Less tool chaos</p>
+          <p class="lede">Unifra AI resolves hybrid infrastructure incidents before they impact your business operations.</p>
+          <a class="btn btn-green" href="/topology/view">View Topology Map</a>
+        </div>
+      </section>
+
+      <!-- PRICING SECTION -->
+      <section class="pricing" id="pricing">
+        <p class="eyebrow">Transparent usage-based pricing</p>
+        <h2>No hidden fees. Every account includes 100GB/month free.</h2>
+        <div class="price-grid">
+          <article>
+            <h3>For Mid-Level Orgs</h3>
+            <ul>
+              <li>Up to 5 Full Platform Users</li>
+              <li>100 GB OpenTelemetry ingest free</li>
+              <li>AWS Boto3 &amp; Discovery Agents</li>
+              <li>Standard data retention in TimescaleDB</li>
+            </ul>
+            <a class="btn btn-dark" href="/topology/view">Start Free</a>
+          </article>
+          <article class="featured">
+            <h3>For Hybrid &amp; DCIM Teams</h3>
+            <ul>
+              <li>Unlimited Full Platform Users</li>
+              <li>Agno AI Agent Orchestrator</li>
+              <li>Edge MCU sensor telemetry</li>
+              <li>Extended data retention</li>
+            </ul>
+            <a class="btn btn-green" href="/topology/view">Get Started</a>
+          </article>
+          <article>
+            <h3>For Mission-Critical Orgs</h3>
+            <ul>
+              <li>Banking, Telecom &amp; DCIM ready</li>
+              <li>Dedicated on-prem agent deployment</li>
+              <li>Custom approval workflows &amp; RBAC</li>
+              <li>24/7 dedicated engineering support</li>
+            </ul>
+            <a class="btn btn-dark" href="#demo">Talk to Sales</a>
+          </article>
+        </div>
+      </section>
+
+      <!-- RESOURCES SECTION -->
+      <section class="resources" id="resources">
+        <h2>Unifra Resources &amp; Architecture</h2>
+        <div class="res-grid">
+          <a href="#resources">
+            <span>Whitepaper</span>
+            <strong>Hybrid Infra Ingestion via OpenTelemetry</strong>
+          </a>
+          <a href="#resources">
+            <span>Architecture PDF</span>
+            <strong>Unifra Data Flow &amp; Agno AI Agents</strong>
+          </a>
+          <a href="#resources">
+            <span>Security Brief</span>
+            <strong>Outbound-Only Discovery &amp; SNMP Read-Only</strong>
+          </a>
+          <a href="#resources">
+            <span>Case Study</span>
+            <strong>Reducing Hybrid MTTR by 65% with Correlation AI</strong>
+          </a>
+        </div>
+      </section>
+
+      <!-- CTA BAR -->
+      <section class="cta-bar">
+        <h2>Ready to unify your cloud costs, networks &amp; sensors?</h2>
+        <div class="cta-links">
+          <a href="/topology/view">→ Launch Interactive Network Topology Map.</a>
+          <a href="#demo">→ Request a guided product tour of Unifra.</a>
+          <a href="#pricing">→ View simple, transparent pricing.</a>
+        </div>
+      </section>
+    </main>
+
+    <!-- SITE FOOTER -->
+    <footer class="site-footer">
+      <div class="foot-brand">
+        <a class="logo" href="/">unifra</a>
+        <p>AI-powered hybrid infrastructure observability for modern engineering teams.</p>
+      </div>
+      <div class="foot-cols">
+        <div>
+          <h4>Platform</h4>
+          <a href="/topology/view">Network Topology</a>
+          <a href="/hosts/">Discovered Hosts</a>
+          <a href="/containers/">Docker Containers</a>
+        </div>
+        <div>
+          <h4>Solutions</h4>
+          <a href="#solutions">Hybrid DCIM</a>
+          <a href="#solutions">Banking &amp; Telecom</a>
+          <a href="#solutions">Physical Edge Sensors</a>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <a href="#resources">Documentation</a>
+          <a href="#pricing">Pricing</a>
+          <a href="#demo">Contact Sales</a>
+        </div>
+        <div class="legal">
+          © 2026 Unifra Inc. All rights reserved. Built with New Relic inspired design.
+        </div>
+      </div>
+    </footer>
+
+    <!-- INTERACTIVE CHATBOT FLOATING WIDGET -->
+    <button id="chatbot-fab" class="chatbot-fab" aria-label="Open Unifra AI Assistant">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      </svg>
+    </button>
+
+    <div id="chatbot-widget" class="chatbot-widget hidden">
+      <div class="chat-header">
+        <div class="chat-title">
+          <span style="display:inline-block;width:8px;height:8px;background:#1ce783;border-radius:50%"></span>
+          Unifra AI Assistant
+        </div>
+        <button id="chatbot-close" class="chat-close-btn" aria-label="Close Chat">×</button>
+      </div>
+      <div id="chat-messages" class="chat-messages">
+        <div class="chat-msg bot">
+          Welcome to Unifra! I can answer any questions about our hybrid infrastructure observability platform, AWS cost optimizer, discovery agents, or AI orchestrator. Ask me about hosts, containers, or topology!
+        </div>
+      </div>
+      <div class="chat-input-area">
+        <input type="text" id="chat-input" placeholder="Ask Unifra AI..." />
+        <button id="chat-send" class="chat-send-btn" aria-label="Send Message">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- DIALOG MODALS -->
+    <dialog id="signup" class="modal">
+      <form method="dialog">
+        <h2>Start using Unifra</h2>
+        <p style="margin:0 0 12px;color:#666">100 GB free every month. No credit card required.</p>
+        <label>
+          Work Email
+          <input type="email" placeholder="name@company.com" required />
+        </label>
+        <label>
+          Company Name
+          <input type="text" placeholder="Acme Corp" required />
+        </label>
+        <div class="modal-actions">
+          <button class="btn btn-green" type="submit">Create Free Account</button>
+          <button class="btn btn-ghost-dark" type="button" onclick="this.closest('dialog').close()">Cancel</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="demo" class="modal">
+      <form method="dialog">
+        <h2>Request a Unifra Demo</h2>
+        <p style="margin:0 0 12px;color:#666">See our hybrid AI agents &amp; discovery in action.</p>
+        <label>
+          Work Email
+          <input type="email" placeholder="name@company.com" required />
+        </label>
+        <label>
+          Infrastructure Scale
+          <input type="text" placeholder="e.g. 50 AWS accounts, 200 on-prem racks" required />
+        </label>
+        <div class="modal-actions">
+          <button class="btn btn-green" type="submit">Schedule Demo</button>
+          <button class="btn btn-ghost-dark" type="button" onclick="this.closest('dialog').close()">Cancel</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="login" class="modal">
+      <form method="dialog">
+        <h2>Log in to Unifra</h2>
+        <label>
+          Email Address
+          <input type="email" placeholder="name@company.com" required />
+        </label>
+        <label>
+          Password
+          <input type="password" required />
+        </label>
+        <div class="modal-actions">
+          <button class="btn btn-green" type="submit">Log In</button>
+          <button class="btn btn-ghost-dark" type="button" onclick="this.closest('dialog').close()">Cancel</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="/static/js/main.js"></script>
+  </body>
+</html>
