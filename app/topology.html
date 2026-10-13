@@ -56,23 +56,82 @@
 
     .legend span { display: flex; align-items: center; gap: 5px; }
 
+    /* ── Legend icons — pixel-matched to vis-network TYPE_STYLE below ── */
     .dot-icon {
-      width: 10px; height: 10px;
+      width: 12px; height: 12px;
       border-radius: 50%;
       display: inline-block;
+      flex-shrink: 0;
+      border: 2px solid transparent;
     }
 
     .diamond-icon {
       width: 10px; height: 10px;
       display: inline-block;
-      background: #2196f3;
+      flex-shrink: 0;
+      background: #2196f322;
+      border: 2px solid #2196f3;
       transform: rotate(45deg);
+      margin: 0 2px;
     }
 
     .square-icon {
-      width: 10px; height: 10px;
+      width: 11px; height: 11px;
       display: inline-block;
-      background: #ff9800;
+      flex-shrink: 0;
+      background: #ff980022;
+      border: 2px solid #ff9800;
+    }
+
+    .box-icon {
+      width: 16px; height: 11px;
+      display: inline-block;
+      flex-shrink: 0;
+      background: #00bcd422;
+      border: 2px solid #00bcd4;
+      border-radius: 2px;
+    }
+
+    .status-ring {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+      background: #2a1010;
+      border: 2px solid #f44336;
+    }
+
+    .edge-solid {
+      width: 22px; height: 0;
+      border-top: 2px solid #44475a;
+      display: inline-block;
+    }
+
+    .edge-dashed {
+      width: 22px; height: 0;
+      border-top: 2px dashed #00bcd4;
+      display: inline-block;
+    }
+
+    .legend-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .legend-divider {
+      width: 1px;
+      height: 16px;
+      background: var(--border);
+    }
+
+    .legend-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #666;
+      font-weight: 700;
     }
 
     #bar-right {
@@ -121,6 +180,8 @@
     }
 
     .btn-scan:hover { background: #12c46d; }
+    .btn-scan.is-active { background: #193d2b; color: var(--green); border: 1px solid rgba(28,231,131,0.45); }
+    .btn-scan:disabled { cursor: wait; opacity: 0.7; }
 
     /* ── Main Layout ── */
     #main {
@@ -171,6 +232,10 @@
     }
     #details .close-btn:hover { color: #fff; }
     #details .ports { margin: 8px 0 0; padding-left: 18px; color: #b7b7bf; font-size: 13px; line-height: 1.7; }
+    .rename-control { display: flex; gap: 7px; margin: 0 0 14px; }
+    .rename-control input { min-width: 0; flex: 1; padding: 8px 10px; border: 1px solid var(--border); border-radius: 7px; background: #0d0f14; color: #eee; font: inherit; }
+    .rename-control button { border: 0; border-radius: 7px; padding: 8px 10px; background: var(--green); color: #052; cursor: pointer; font-weight: 700; }
+    .rename-control .rename-error { color: #f87171; font-size: 12px; }
 
     .status-badge {
       display: inline-block;
@@ -204,16 +269,31 @@
   <div id="bar">
     <a class="logo-link" href="/"><span>uni</span>fra</a>
     <div class="legend">
-      <span><span class="diamond-icon"></span> Router</span>
-      <span><span class="square-icon"></span> Server</span>
-      <span><span class="dot-icon" style="background:#4caf50"></span> PC</span>
-      <span><span class="dot-icon" style="background:#9c27b0"></span> Phone</span>
-      <span><span class="dot-icon" style="background:#00bcd4"></span> Container</span>
-      <span><span class="dot-icon" style="background:#888"></span> Unknown</span>
-      <span><span class="dot-icon" style="background:#f44336"></span> Down</span>
+      <div class="legend-group">
+        <span class="legend-label">Device</span>
+        <span title="Diamond node, blue border (#2196f3)"><span class="diamond-icon"></span> Router</span>
+        <span title="Square node, orange border (#ff9800)"><span class="square-icon"></span> Server</span>
+        <span title="Circle node, green border (#4caf50)"><span class="dot-icon" style="border-color:#4caf50; background:#4caf5022"></span> PC</span>
+        <span title="Circle node, purple border (#9c27b0)"><span class="dot-icon" style="border-color:#9c27b0; background:#9c27b022"></span> Phone</span>
+        <span title="Rectangle/box node, cyan border (#00bcd4)"><span class="box-icon"></span> Container</span>
+        <span title="Circle node, grey border (#888)"><span class="dot-icon" style="border-color:#888; background:#888222"></span> Unknown</span>
+      </div>
+      <div class="legend-divider"></div>
+      <div class="legend-group">
+        <span class="legend-label">Status</span>
+        <span title="Any shape with red border = offline/down"><span class="status-ring"></span> Offline</span>
+      </div>
+      <div class="legend-divider"></div>
+      <div class="legend-group">
+        <span class="legend-label">Link</span>
+        <span title="Solid grey edge = network link"><span class="edge-solid"></span> Network</span>
+        <span title="Dashed cyan edge = container → host link"><span class="edge-dashed"></span> Container</span>
+      </div>
     </div>
     <div id="bar-right">
+      <span id="demo-badge">Sample data</span>
       <span id="updated"></span>
+      <button id="scan-toggle" class="btn-scan" type="button" aria-pressed="false">Start 30s scan</button>
       <a class="btn-back" href="/">← Back to Dashboard</a>
     </div>
   </div>
@@ -222,77 +302,45 @@
   <div id="main">
     <div id="graph"></div>
 
-    <!-- NO DATA OVERLAY — shown when database is empty / no scan has run -->
-    <div id="no-data-overlay" style="display:none; position:absolute; inset:0; align-items:center; justify-content:center; background:rgba(10,15,18,0.96); z-index:20;">
-      <div style="background:#16181d; border:1px solid rgba(255,255,255,0.08); border-radius:20px; padding:40px 48px; max-width:580px; width:90%;">
-
-        <div style="font-size:36px; margin-bottom:16px;">📡</div>
-        <h2 style="font-size:22px; font-weight:700; color:#fff; margin-bottom:10px;">No topology data found</h2>
-
-        <div style="color:#9a9aaf; font-size:14px; line-height:1.7; margin-bottom:24px; padding:14px 16px; background:rgba(248,113,113,0.07); border-left:3px solid #f87171; border-radius:6px;">
-          <strong style="color:#f87171;">Why is the graph blank?</strong><br>
-          The Unifra database currently has <strong>0 discovered hosts, 0 network links, and 0 containers</strong>.
-          This is because <strong>no network scan has been run yet.</strong>
-          The topology graph only shows data after the Discovery Agent scans your local network via Nmap, PySNMP, and Docker SDK and stores results in PostgreSQL.
-        </div>
-
-        <p style="font-size:12px; text-transform:uppercase; letter-spacing:0.1em; color:#555; margin-bottom:12px; font-weight:600;">Fix it — run a scan:</p>
-
-        <ol style="padding-left:22px; color:#b7b7bf; font-size:14px; line-height:2.4;">
-          <li>Open a terminal and navigate to your UNIFRA project folder.</li>
-          <li>Activate the virtual environment:<br>
-            <code style="background:#0a0c12; border:1px solid rgba(255,255,255,0.08); border-radius:4px; padding:2px 10px; font-family:monospace; font-size:12px; color:#1ce783;">venvUnifra\Scripts\activate</code>
-          </li>
-          <li>Run the discovery agent:<br>
-            <code style="background:#0a0c12; border:1px solid rgba(255,255,255,0.08); border-radius:4px; padding:2px 10px; font-family:monospace; font-size:12px; color:#1ce783;">python -m app.discovery_agent.scan</code>
-          </li>
-          <li>Wait for the scan to finish, then click <strong style="color:#fff;">Retry</strong> below.</li>
-        </ol>
-
-        <p style="margin-top:20px; font-size:12px; color:#444;">
-          ↻ This page auto-retries every 30 seconds. Once scan data is in the database, the graph appears automatically.
-        </p>
-
-        <button onclick="retryRefresh()" style="margin-top:20px; background:#1ce783; color:#052; border:0; border-radius:999px; padding:10px 24px; font-size:14px; font-weight:700; cursor:pointer;">
-          ↻ Retry Now
-        </button>
-      </div>
-    </div>
     <div id="details"></div>
   </div>
 
   <script>
+    // ── Single source of truth for node rendering.
+    // ── MUST stay in sync with the legend in #bar above:
+    // ── router=diamond/blue, server=square/orange, pc=dot/green,
+    // ── phone=dot/purple, container=box/cyan, unknown=dot/grey.
+    // ── status "down" keeps the same shape but swaps border to red (#f44336).
     const TYPE_STYLE = {
       router:    { shape: "diamond", color: "#2196f3" },
       server:    { shape: "square",  color: "#ff9800" },
       pc:        { shape: "dot",     color: "#4caf50" },
       phone:     { shape: "dot",     color: "#9c27b0" },
-      unknown:   { shape: "dot",     color: "#888"    },
+      unknown:   { shape: "dot",     color: "#888888" },
       container: { shape: "box",     color: "#00bcd4" },
     };
+    const DOWN_COLOR = "#f44336";
 
-    // ── Demo data shown when the DB returns 0 nodes ──
+    // A useful, clearly labelled preview keeps the topology page informative
+    // before the first discovery scan has populated the database.
     const DEMO_NODES = [
-      { id: "10.0.0.1",  label: "Gateway",       device_type: "router",    status: "up"   },
-      { id: "10.0.0.10", label: "Web Server",     device_type: "server",    status: "up"   },
-      { id: "10.0.0.11", label: "DB Server",      device_type: "server",    status: "up"   },
-      { id: "10.0.0.20", label: "Dev PC",         device_type: "pc",        status: "up"   },
-      { id: "10.0.0.21", label: "Office PC",      device_type: "pc",        status: "up"   },
-      { id: "10.0.0.30", label: "Mobile Device",  device_type: "phone",     status: "up"   },
-      { id: "10.0.0.50", label: "Offline Host",   device_type: "unknown",   status: "down" },
-      { id: "container-abc123", label: "nginx",   device_type: "container", status: "up"   },
-      { id: "container-def456", label: "redis",   device_type: "container", status: "up"   },
+      { id: "demo-gateway", label: "Gateway", device_type: "router", status: "up" },
+      { id: "demo-web", label: "Web Server", device_type: "server", status: "up" },
+      { id: "demo-db", label: "Database", device_type: "server", status: "up" },
+      { id: "demo-laptop", label: "Engineering PC", device_type: "pc", status: "up" },
+      { id: "demo-phone", label: "Mobile Device", device_type: "phone", status: "up" },
+      { id: "demo-offline", label: "Offline Host", device_type: "unknown", status: "down" },
+      { id: "container-demo-nginx", label: "nginx", device_type: "container", status: "up" },
+      { id: "container-demo-redis", label: "redis", device_type: "container", status: "up" },
     ];
-
     const DEMO_EDGES = [
-      { from: "10.0.0.1",  to: "10.0.0.10", type: "network"   },
-      { from: "10.0.0.1",  to: "10.0.0.11", type: "network"   },
-      { from: "10.0.0.1",  to: "10.0.0.20", type: "network"   },
-      { from: "10.0.0.1",  to: "10.0.0.21", type: "network"   },
-      { from: "10.0.0.1",  to: "10.0.0.30", type: "network"   },
-      { from: "10.0.0.1",  to: "10.0.0.50", type: "network"   },
-      { from: "container-abc123", to: "10.0.0.10", type: "container" },
-      { from: "container-def456", to: "10.0.0.11", type: "container" },
+      { from: "demo-gateway", to: "demo-web", type: "network" },
+      { from: "demo-gateway", to: "demo-db", type: "network" },
+      { from: "demo-gateway", to: "demo-laptop", type: "network" },
+      { from: "demo-gateway", to: "demo-phone", type: "network" },
+      { from: "demo-gateway", to: "demo-offline", type: "network" },
+      { from: "container-demo-nginx", to: "demo-web", type: "container" },
+      { from: "container-demo-redis", to: "demo-db", type: "container" },
     ];
 
     // ── Build vis-network ──
@@ -319,7 +367,6 @@
           width: 1.5,
         },
         interaction: { hover: true, tooltipDelay: 200 },
-        background: { color: "transparent" },
       }
     );
 
@@ -349,11 +396,48 @@
       document.getElementById("details").style.display = "none";
     }
 
-    // ── Click handlers ──
+    async function saveHostName(ip) {
+      const input = document.getElementById("host-name-input");
+      const error = document.getElementById("rename-error");
+      const button = document.getElementById("rename-save");
+      const name = input.value.trim();
+      if (!name) {
+        error.textContent = "Enter a name first.";
+        return;
+      }
+      button.disabled = true;
+      error.textContent = "";
+      try {
+        const res = await fetch(`/hosts/${encodeURIComponent(ip)}/name`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name }),
+        });
+        if (!res.ok) throw new Error("Could not save the name");
+        await refresh();
+        await showHost(ip);
+      } catch (_) {
+        error.textContent = "Could not save the name. Try again.";
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    // ── Click handlers (live API only — no demo fallback) ──
     async function showHost(id) {
       const node = nodesDS.get(id);
-      // Demo mode fallback
-      const demoNode = DEMO_NODES.find(n => n.id === id);
+      if (String(id).startsWith("demo-")) {
+        showDetails(
+          `<h3>${esc(node.label)}</h3>` +
+          `<table>` +
+          row("Type", node.device_type) +
+          `<tr><td>Status</td><td>${statusBadge(node.status)}</td></tr>` +
+          row("Source", "Sample topology") +
+          `</table>` +
+          `<p style="color:#9a9aaf;font-size:13px;margin-top:12px">This is preview data. Run a discovery scan to view your network.</p>`
+        );
+        return;
+      }
       try {
         const res = await fetch(`/hosts/${encodeURIComponent(id)}`);
         if (!res.ok) throw new Error("not found");
@@ -363,9 +447,11 @@
         ).join("");
         showDetails(
           `<h3>${esc(h.hostname || h.ip)}</h3>` +
+          `<div class="rename-control"><input id="host-name-input" maxlength="100" value="${esc(h.hostname || "")}" placeholder="Name this device" aria-label="Device name"><button id="rename-save" type="button" onclick="saveHostName('${esc(id)}')">Save</button></div>` +
+          `<p id="rename-error" class="rename-error" role="alert"></p>` +
           `<table>` +
           row("IP", h.ip) +
-          row("Type", node ? node.device_type : "") +
+          row("Type", node ? node.device_type : "unknown") +
           `<tr><td>Status</td><td>${statusBadge(h.status)}</td></tr>` +
           row("MAC", h.mac) +
           row("Vendor", h.vendor) +
@@ -376,13 +462,12 @@
           (ports ? `<ul class="ports">${ports}</ul>` : `<p style="color:#555;font-size:13px">None found</p>`)
         );
       } catch (_) {
-        // Demo mode details
         showDetails(
-          `<h3>${esc(demoNode ? demoNode.label : id)}</h3>` +
+          `<h3>${esc(node ? node.label : id)}</h3>` +
           `<table>` +
           row("IP", id) +
-          row("Type", demoNode ? demoNode.device_type : "unknown") +
-          `<tr><td>Status</td><td>${statusBadge(demoNode ? demoNode.status : "unknown")}</td></tr>` +
+          row("Type", node ? node.device_type : "unknown") +
+          `<tr><td>Status</td><td>${statusBadge(node ? node.status : "unknown")}</td></tr>` +
           row("Note", "Run a network scan to see live data") +
           `</table>`
         );
@@ -391,6 +476,15 @@
 
     async function showContainer(id) {
       const containerId = id.replace("container-", "");
+      if (containerId.startsWith("demo-")) {
+        const node = nodesDS.get(id);
+        showDetails(
+          `<h3>${esc(node.label)}</h3>` +
+          `<table>` + row("Type", "container") + row("Source", "Sample topology") + `</table>` +
+          `<p style="color:#9a9aaf;font-size:13px;margin-top:12px">This is preview data. Run a discovery scan to view live containers.</p>`
+        );
+        return;
+      }
       try {
         const res = await fetch("/containers/");
         const list = await res.json();
@@ -423,22 +517,27 @@
       }
     });
 
-    // ── Build node/edge vis objects ──
+    // ── Build node/edge vis objects (mirrors legend) ──
     function buildVisNodes(rawNodes) {
       return rawNodes.map(n => {
-        const style = TYPE_STYLE[n.device_type] || TYPE_STYLE.unknown;
+        const deviceType = TYPE_STYLE[n.device_type] ? n.device_type : "unknown";
+        const style = TYPE_STYLE[deviceType];
+        const isDown = n.status === "down";
         return {
           id: n.id,
           label: n.label,
-          title: n.title || n.label,
-          device_type: n.device_type,
+          title: (n.title || n.label) + `\nType: ${deviceType} · Status: ${n.status || "unknown"}`,
+          device_type: deviceType,
+          status: n.status,
           shape: style.shape,
           color: {
-            background: n.status === "down" ? "#2a1010" : style.color + "22",
-            border: n.status === "down" ? "#f44336" : style.color,
-            highlight: { border: "#fff", background: style.color + "44" },
+            background: isDown ? "#2a1010" : style.color + "22",
+            border: isDown ? DOWN_COLOR : style.color,
+            highlight: { border: "#ffffff", background: style.color + "44" },
+            hover: { border: "#ffffff", background: style.color + "44" },
           },
           font: { color: "#eee" },
+          size: deviceType === "container" ? 22 : 20,
         };
       });
     }
@@ -454,15 +553,74 @@
     }
 
     // ── Refresh from API ──
-    function showNoDataOverlay() {
-      const overlay = document.getElementById("no-data-overlay");
-      overlay.style.display = "flex";
+    function showTopologyNotice(message) {
+      const badge = document.getElementById("demo-badge");
+      badge.title = message;
+      badge.style.display = "inline-block";
     }
 
-    function hideNoDataOverlay() {
-      const overlay = document.getElementById("no-data-overlay");
-      overlay.style.display = "none";
+    function hidePreviewIndicators() {
+      document.getElementById("demo-badge").style.display = "none";
     }
+
+    function renderTopology(rawNodes, rawEdges, offsetX = 0) {
+      const nodes = buildVisNodes(rawNodes);
+      const edges = buildVisEdges(rawEdges);
+      nodesDS.clear();
+      edgesDS.clear();
+      nodesDS.add(nodes);
+      edgesDS.add(edges);
+      network.fit({
+        animation: { duration: 350, easingFunction: "easeInOutQuad" },
+        offset: { x: offsetX, y: 0 },
+      });
+    }
+
+    function renderPreview(message) {
+      // Keep preview nodes clear of the explanatory card on the lower right.
+      renderTopology(DEMO_NODES, DEMO_EDGES, -180);
+      showTopologyNotice(message);
+    }
+
+    let scanEnabled = false;
+
+    function updateScanButton(enabled, intervalSeconds = 30) {
+      scanEnabled = enabled;
+      const button = document.getElementById("scan-toggle");
+      button.classList.toggle("is-active", enabled);
+      button.setAttribute("aria-pressed", String(enabled));
+      button.textContent = enabled ? `● Scan on (${intervalSeconds}s)` : `Start ${intervalSeconds}s scan`;
+    }
+
+    async function loadScanStatus() {
+      try {
+        const res = await fetch("/discovery/status");
+        if (!res.ok) throw new Error("status unavailable");
+        const status = await res.json();
+        updateScanButton(status.enabled, status.interval_seconds);
+      } catch (_) {
+        document.getElementById("scan-toggle").textContent = "Scan unavailable";
+      }
+    }
+
+    async function toggleScan() {
+      const button = document.getElementById("scan-toggle");
+      button.disabled = true;
+      try {
+        const res = await fetch("/discovery/toggle", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ enabled: !scanEnabled }),
+        });
+        if (!res.ok) throw new Error("toggle failed");
+        const status = await res.json();
+        updateScanButton(status.enabled, status.interval_seconds);
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    document.getElementById("scan-toggle").addEventListener("click", toggleScan);
 
     async function refresh() {
       try {
@@ -471,30 +629,18 @@
         const data = await res.json();
 
         if (!data.nodes || data.nodes.length === 0) {
-          // DB is empty — no scan has run yet
-          showNoDataOverlay();
-          document.getElementById("updated").textContent = "";
+          renderPreview("No discovery data is available yet. This preview will be replaced automatically after your first scan.");
+          document.getElementById("updated").textContent = "Preview · waiting for live data";
           return;
         }
 
-        // Live data available — hide overlay and render graph
-        hideNoDataOverlay();
-
-        const nodes = buildVisNodes(data.nodes);
-        const edges = buildVisEdges(data.edges);
-
-        nodesDS.update(nodes);
-        edgesDS.update(edges);
-
-        const newNodeIds = nodes.map(n => n.id);
-        nodesDS.remove(nodesDS.getIds().filter(id => !newNodeIds.includes(id)));
-        const newEdgeIds = edges.map(e => e.id);
-        edgesDS.remove(edgesDS.getIds().filter(id => !newEdgeIds.includes(id)));
+        hidePreviewIndicators();
+        renderTopology(data.nodes, data.edges || []);
 
         document.getElementById("updated").textContent = "Live · updated " + new Date().toLocaleTimeString();
       } catch (err) {
-        document.getElementById("updated").textContent = "Server unreachable — retrying…";
-        showNoDataOverlay();
+        document.getElementById("updated").textContent = "Preview · server unavailable";
+        renderPreview("The live topology API is temporarily unavailable. Check the server, then try again.");
       }
     }
 
@@ -505,7 +651,9 @@
 
     // Start
     refresh();
+    loadScanStatus();
     setInterval(refresh, 30000);
+    setInterval(loadScanStatus, 30000);
   </script>
 </body>
 </html>

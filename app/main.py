@@ -1,5 +1,6 @@
 from typing import Optional
 from fastapi import FastAPI, Depends, HTTPException
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from app.database import engine, get_db, Base
 from app import models
@@ -7,11 +8,14 @@ from pathlib import Path
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from app.discovery_agent.classify import guess_device_type
+from dotenv import load_dotenv
 import os
 import logging
+import threading
 
 logger = logging.getLogger(__name__)
 
+load_dotenv()
 GATEWAY_IP = os.getenv("GATEWAY_IP", "")
 
 # Create tables if using SQLite / Postgres
@@ -21,6 +25,54 @@ except Exception as e:
     logger.warning(f"Could not create tables automatically: {e}")
 
 app = FastAPI(title="Unifra Hybrid Infrastructure Observability")
+
+
+class DiscoveryToggle(BaseModel):
+    enabled: bool
+
+
+class HostRename(BaseModel):
+    name: str = Field(min_length=1, max_length=100)
+
+
+class DiscoveryScheduler:
+    """Runs one discovery pass at a time while the UI scan toggle is enabled."""
+
+    interval_seconds = 30
+
+    def __init__(self):
+        self.enabled = False
+        self._lock = threading.Lock()
+        self._wake = threading.Event()
+        self._thread: Optional[threading.Thread] = None
+
+    def set_enabled(self, enabled: bool) -> bool:
+        with self._lock:
+            self.enabled = enabled
+            if enabled and (self._thread is None or not self._thread.is_alive()):
+                self._wake.clear()
+                self._thread = threading.Thread(target=self._run, daemon=True, name="unifra-discovery")
+                self._thread.start()
+            elif not enabled:
+                self._wake.set()
+        return self.enabled
+
+    def _run(self):
+        from app.discovery_agent.storage import run_scan
+
+        while True:
+            with self._lock:
+                if not self.enabled:
+                    return
+                self._wake.clear()
+            try:
+                run_scan()
+            except Exception:
+                logger.exception("Discovery scan failed")
+            self._wake.wait(self.interval_seconds)
+
+
+discovery_scheduler = DiscoveryScheduler()
 
 # Mount Static Files
 static_dir = Path(__file__).parent / "static"
@@ -67,6 +119,28 @@ def get_host(ip: str, db: Session = Depends(get_db)):
     except Exception as e:
         logger.error(f"Error getting host {ip}: {e}")
         raise HTTPException(status_code=404, detail="Host not found")
+
+
+@app.patch("/hosts/{ip}/name")
+def rename_host(ip: str, payload: HostRename, db: Session = Depends(get_db)):
+    host = db.query(models.DiscoveredHost).filter(models.DiscoveredHost.ip == ip).first()
+    if host is None:
+        raise HTTPException(status_code=404, detail="Host not found")
+    host.hostname = payload.name.strip()
+    db.commit()
+    db.refresh(host)
+    return host
+
+
+@app.get("/discovery/status")
+def discovery_status():
+    return {"enabled": discovery_scheduler.enabled, "interval_seconds": discovery_scheduler.interval_seconds}
+
+
+@app.post("/discovery/toggle")
+def toggle_discovery(payload: DiscoveryToggle):
+    enabled = discovery_scheduler.set_enabled(payload.enabled)
+    return {"enabled": enabled, "interval_seconds": discovery_scheduler.interval_seconds}
 
 @app.get("/links/")
 def list_links(db: Session = Depends(get_db)):

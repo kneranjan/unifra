@@ -576,7 +576,6 @@ a {
 
 .toolkit,
 .ai-section,
-.pricing,
 .resources,
 .cta-bar {
   padding: 88px 6vw;
@@ -593,7 +592,6 @@ a {
 
 .toolkit h2,
 .ai-section h2,
-.pricing h2,
 .resources h2,
 .cta-bar h2 {
   font-size: clamp(32px, 4vw, 48px);
@@ -732,33 +730,6 @@ a {
 .lede {
   font-size: 20px;
   max-width: 36ch;
-}
-
-.price-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
-
-.price-grid article {
-  background: #fff;
-  border-radius: 20px;
-  padding: 28px;
-  display: flex;
-  flex-direction: column;
-  min-height: 360px;
-}
-
-.price-grid.featured,
-.price-grid article.featured {
-  background: #111;
-  color: #fff;
-}
-
-.price-grid ul {
-  padding-left: 18px;
-  flex: 1;
-  line-height: 1.8;
 }
 
 .res-grid {
@@ -1044,7 +1015,6 @@ a {
   .shipwreck,
   .ai-grid,
   .feature-grid,
-  .price-grid,
   .res-grid,
   .site-footer,
   .logos {

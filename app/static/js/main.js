@@ -167,7 +167,7 @@ if (fab && widget) {
       } catch (e) {
         botMsg.textContent = "Unifra Docker SDK integration tracks local container topologies and maps them to host IPs.";
       }
-    } else if (lower.includes("cost") || lower.includes("aws") || lower.includes("pricing")) {
+    } else if (lower.includes("cost") || lower.includes("aws")) {
       botMsg.textContent = "Unifra's Cost Agent continuously monitors AWS APIs & billing, recommending auto-scaling and spot instances to save up to 40% on hybrid infra spend.";
     } else if (lower.includes("agent") || lower.includes("agno") || lower.includes("sre")) {
       botMsg.textContent = "Unifra operates 4 specialized AI Agents (Cost, Health, API Perf, and Correlation) orchestrated via Agno for real-time root-cause analysis & automated control.";
