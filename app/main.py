@@ -2,7 +2,7 @@ from typing import Optional
 from fastapi import FastAPI, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
-from app.database import engine, get_db, Base
+from app.database import engine, get_db, Base, SessionLocal
 from app import models
 from pathlib import Path
 from fastapi.responses import HTMLResponse
@@ -35,6 +35,10 @@ class HostRename(BaseModel):
     name: str = Field(min_length=1, max_length=100)
 
 
+class TopologyReset(BaseModel):
+    start_scan: bool = True
+
+
 class DiscoveryScheduler:
     """Runs one discovery pass at a time while the UI scan toggle is enabled."""
 
@@ -42,12 +46,18 @@ class DiscoveryScheduler:
 
     def __init__(self):
         self.enabled = False
+        self.resetting = False
         self._lock = threading.Lock()
+        self._scan_lock = threading.Lock()
         self._wake = threading.Event()
         self._thread: Optional[threading.Thread] = None
+        self._reset_thread: Optional[threading.Thread] = None
+        self._generation = 0
 
     def set_enabled(self, enabled: bool) -> bool:
         with self._lock:
+            if not enabled and self.enabled:
+                self._generation += 1
             self.enabled = enabled
             if enabled and (self._thread is None or not self._thread.is_alive()):
                 self._wake.clear()
@@ -64,12 +74,56 @@ class DiscoveryScheduler:
             with self._lock:
                 if not self.enabled:
                     return
+                generation = self._generation
                 self._wake.clear()
             try:
-                run_scan()
+                # A reset waits for an in-progress scan rather than allowing
+                # scan results to be written back after the map is cleared.
+                with self._scan_lock:
+                    with self._lock:
+                        if not self.enabled or generation != self._generation:
+                            return
+                    run_scan()
             except Exception:
                 logger.exception("Discovery scan failed")
             self._wake.wait(self.interval_seconds)
+
+    def request_reset(self, start_scan: bool) -> bool:
+        """Queue a reset without blocking the HTTP request on an Nmap scan."""
+        with self._lock:
+            if self.resetting:
+                return False
+            self.enabled = False
+            self.resetting = True
+            self._generation += 1
+            self._wake.set()
+            self._reset_thread = threading.Thread(
+                target=self._reset_worker,
+                args=(start_scan,),
+                daemon=True,
+                name="unifra-topology-reset",
+            )
+            self._reset_thread.start()
+        return True
+
+    def _reset_worker(self, start_scan: bool):
+        # Wait for a current scan to finish before deleting its results.
+        with self._scan_lock:
+            db = SessionLocal()
+            try:
+                db.query(models.NetworkLink).delete(synchronize_session=False)
+                db.query(models.Container).delete(synchronize_session=False)
+                db.query(models.DiscoveredHost).delete(synchronize_session=False)
+                db.commit()
+            except Exception:
+                db.rollback()
+                logger.exception("Topology reset failed")
+            finally:
+                db.close()
+                with self._lock:
+                    self.resetting = False
+        if start_scan:
+            self.set_enabled(True)
 
 
 discovery_scheduler = DiscoveryScheduler()
@@ -134,13 +188,29 @@ def rename_host(ip: str, payload: HostRename, db: Session = Depends(get_db)):
 
 @app.get("/discovery/status")
 def discovery_status():
-    return {"enabled": discovery_scheduler.enabled, "interval_seconds": discovery_scheduler.interval_seconds}
+    return {
+        "enabled": discovery_scheduler.enabled,
+        "resetting": discovery_scheduler.resetting,
+        "interval_seconds": discovery_scheduler.interval_seconds,
+    }
 
 
 @app.post("/discovery/toggle")
 def toggle_discovery(payload: DiscoveryToggle):
     enabled = discovery_scheduler.set_enabled(payload.enabled)
     return {"enabled": enabled, "interval_seconds": discovery_scheduler.interval_seconds}
+
+
+@app.post("/discovery/reset", status_code=202)
+def reset_topology(payload: TopologyReset):
+    """Queue a topology reset; an active scan is allowed to finish safely."""
+    queued = discovery_scheduler.request_reset(payload.start_scan)
+    return {
+        "queued": queued,
+        "resetting": discovery_scheduler.resetting,
+        "scan_enabled": discovery_scheduler.enabled,
+        "interval_seconds": discovery_scheduler.interval_seconds,
+    }
 
 @app.get("/links/")
 def list_links(db: Session = Depends(get_db)):

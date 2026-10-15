@@ -14,7 +14,67 @@
       href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/static/css/styles.css" />
+    <link rel="stylesheet" href="/static/css/styles.css?v=2.0" />
+    <style>
+      .logos {
+        background: #0d0d0f !important;
+        color: #fff !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        padding: 32px 0 !important;
+        overflow: hidden !important;
+        width: 100% !important;
+      }
+      .logos-heading {
+        margin: 0 0 18px !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.08em !important;
+        color: rgba(255, 255, 255, 0.55) !important;
+        text-align: center !important;
+        padding: 0 20px !important;
+      }
+      .logo-marquee {
+        width: 100% !important;
+        overflow: hidden !important;
+        position: relative !important;
+        mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%) !important;
+        -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%) !important;
+      }
+      .logo-track {
+        display: flex !important;
+        align-items: center !important;
+        width: max-content !important;
+        animation: marquee 65s linear infinite !important;
+        white-space: nowrap !important;
+      }
+      .logo-track:hover {
+        animation-play-state: paused !important;
+      }
+      .logo-item {
+        display: inline-flex !important;
+        align-items: center !important;
+        padding: 0 45px !important;
+        font-size: 14px !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.1em !important;
+        color: rgba(255, 255, 255, 0.88) !important;
+        white-space: nowrap !important;
+      }
+      .logo-sep {
+        display: inline-block !important;
+        color: #1ce783 !important;
+        font-size: 16px !important;
+        opacity: 0.9 !important;
+        user-select: none !important;
+      }
+      @keyframes marquee {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+      }
+    </style>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to main content</a>
@@ -51,7 +111,14 @@
               <a href="#solutions"><strong>Enterprise Banking &amp; Telecom</strong><span>Zero inbound ports, strict approval controls</span></a>
             </div>
           </li>
-          <li><a href="#customers">Customers</a></li>
+          <li>
+            <button class="nav-drop" data-menu="customers" aria-expanded="false">Customers</button>
+            <div class="mega" id="menu-customers">
+              <a href="#customers"><strong>Customer Stories</strong><span>Trusted by global banking, telecom &amp; cloud teams</span></a>
+              <a href="#customers"><strong>Case Studies</strong><span>Reducing hybrid MTTR by 65% with Correlation AI</span></a>
+              <a href="#customers"><strong>Enterprise Proof</strong><span>Proven scale across DCIM &amp; hybrid environments</span></a>
+            </div>
+          </li>
           <li>
             <button class="nav-drop" data-menu="resources" aria-expanded="false">Resources</button>
             <div class="mega" id="menu-resources">
@@ -175,14 +242,60 @@ STATUS: Awaiting User Approval (Y/N)</pre>
 
       <!-- LOGO TRACK -->
       <section class="logos" id="customers" aria-label="Trusted by">
-        <p>Trusted by hybrid infra teams in</p>
-        <div class="logo-track">
-          <span>GLOBAL BANKING</span>
-          <span>HEALTHCARE SYSTEMS</span>
-          <span>TELECOM NETWORKS</span>
-          <span>DCIM OPERATORS</span>
-          <span>ENTERPRISE CLOUD</span>
-          <span>EDGE COMPUTE ORGS</span>
+        <p class="logos-heading">Can Be Used By</p>
+        <div class="logo-marquee">
+          <div class="logo-track">
+            <!-- Set 1 -->
+            <span class="logo-item">GLOBAL BANKING</span>
+            <span class="logo-sep">•</span>
+            <span class="logo-item">HEALTHCARE SYSTEMS</span>
+            <span class="logo-sep">•</span>
+            <span class="logo-item">TELECOM NETWORKS</span>
+            <span class="logo-sep">•</span>
+            <span class="logo-item">DCIM OPERATORS</span>
+            <span class="logo-sep">•</span>
+            <span class="logo-item">ENTERPRISE CLOUD</span>
+            <span class="logo-sep">•</span>
+            <span class="logo-item">EDGE COMPUTE ORGS</span>
+            <span class="logo-sep">•</span>
+            <span class="logo-item">GLOBAL BANKING</span>
+            <span class="logo-sep">•</span>
+            <span class="logo-item">HEALTHCARE SYSTEMS</span>
+            <span class="logo-sep">•</span>
+            <span class="logo-item">TELECOM NETWORKS</span>
+            <span class="logo-sep">•</span>
+            <span class="logo-item">DCIM OPERATORS</span>
+            <span class="logo-sep">•</span>
+            <span class="logo-item">ENTERPRISE CLOUD</span>
+            <span class="logo-sep">•</span>
+            <span class="logo-item">EDGE COMPUTE ORGS</span>
+            <span class="logo-sep">•</span>
+            <!-- Set 2 (Identical duplicate for seamless infinite loop) -->
+            <span class="logo-item">GLOBAL BANKING</span>
+            <span class="logo-sep">•</span>
+            <span class="logo-item">HEALTHCARE SYSTEMS</span>
+            <span class="logo-sep">•</span>
+            <span class="logo-item">TELECOM NETWORKS</span>
+            <span class="logo-sep">•</span>
+            <span class="logo-item">DCIM OPERATORS</span>
+            <span class="logo-sep">•</span>
+            <span class="logo-item">ENTERPRISE CLOUD</span>
+            <span class="logo-sep">•</span>
+            <span class="logo-item">EDGE COMPUTE ORGS</span>
+            <span class="logo-sep">•</span>
+            <span class="logo-item">GLOBAL BANKING</span>
+            <span class="logo-sep">•</span>
+            <span class="logo-item">HEALTHCARE SYSTEMS</span>
+            <span class="logo-sep">•</span>
+            <span class="logo-item">TELECOM NETWORKS</span>
+            <span class="logo-sep">•</span>
+            <span class="logo-item">DCIM OPERATORS</span>
+            <span class="logo-sep">•</span>
+            <span class="logo-item">ENTERPRISE CLOUD</span>
+            <span class="logo-sep">•</span>
+            <span class="logo-item">EDGE COMPUTE ORGS</span>
+            <span class="logo-sep">•</span>
+          </div>
         </div>
       </section>
 
@@ -224,7 +337,7 @@ STATUS: Awaiting User Approval (Y/N)</pre>
           <button class="tab is-active" role="tab" aria-selected="true" data-tab="aws">AWS Optimization</button>
           <button class="tab" role="tab" aria-selected="false" data-tab="discovery">Discovery Agent</button>
           <button class="tab" role="tab" aria-selected="false" data-tab="edge">Edge Sensors</button>
-          <button class="tab" role="tab" aria-selected="false" data-tab="ai">Agno AI Stack</button>
+          <button class="tab" role="tab" aria-selected="false" data-tab="ai">Langfamily Stack</button>
           <button class="tab" role="tab" aria-selected="false" data-tab="telemetry">OTel Collector</button>
           <button class="tab" role="tab" aria-selected="false" data-tab="security">Zero-Trust Security</button>
         </div>
@@ -255,7 +368,7 @@ STATUS: Awaiting User Approval (Y/N)</pre>
           </div>
           <div class="panel" data-panel="ai">
             <div class="panel-copy">
-              <h3>Orchestrated AI Agents via Agno</h3>
+              <h3>Orchestrated AI Agents via Langgraph</h3>
               <p>Empower your operations with specialized autonomous agents that analyze telemetry and correlate issues across layers.</p>
               <a class="text-link" href="#ai-agents">Explore Agno Agents →</a>
             </div>
@@ -322,7 +435,7 @@ STATUS: Awaiting User Approval (Y/N)</pre>
           </a>
           <a href="#resources">
             <span>Architecture PDF</span>
-            <strong>Unifra Data Flow &amp; Agno AI Agents</strong>
+            <strong>Unifra Data Flow &amp;</strong>
           </a>
           <a href="#resources">
             <span>Security Brief</span>
@@ -367,7 +480,6 @@ STATUS: Awaiting User Approval (Y/N)</pre>
         <div>
           <h4>Company</h4>
           <a href="#resources">Documentation</a>
-          <a href="#demo">Contact Us</a>
         </div>
         <div class="legal">
           © 2026 Unifra Inc. All rights reserved. Built with New Relic inspired design.

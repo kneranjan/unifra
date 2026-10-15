@@ -518,36 +518,71 @@ a {
 .logos {
   background: #0d0d0f;
   color: #fff;
-  display: grid;
-  grid-template-columns: 180px 1fr;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  padding: 28px 6vw;
-  gap: 24px;
+  padding: 32px 0;
   overflow: hidden;
+  position: relative;
+  width: 100%;
 }
 
-.logos p {
-  margin: 0;
+.logos-heading {
+  margin: 0 0 20px;
+  font-size: 13px;
   font-weight: 600;
-  line-height: 1.3;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: center;
+  padding: 0 20px;
+}
+
+.logo-marquee {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
 }
 
 .logo-track {
   display: flex;
-  gap: 56px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  opacity: 0.85;
-  animation: marquee 22s linear infinite;
+  align-items: center;
+  width: max-content;
+  animation: marquee 65s linear infinite;
   white-space: nowrap;
 }
 
+.logo-track:hover {
+  animation-play-state: paused;
+}
+
+.logo-item {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 45px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.88);
+  white-space: nowrap;
+}
+
+.logo-sep {
+  display: inline-block;
+  color: #1ce783;
+  font-size: 16px;
+  opacity: 0.9;
+  user-select: none;
+}
+
 @keyframes marquee {
-  from {
+  0% {
     transform: translateX(0);
   }
-  to {
-    transform: translateX(-40%);
+  100% {
+    transform: translateX(-50%);
   }
 }
 
@@ -1016,8 +1051,7 @@ a {
   .ai-grid,
   .feature-grid,
   .res-grid,
-  .site-footer,
-  .logos {
+  .site-footer {
     grid-template-columns: 1fr;
   }
 
