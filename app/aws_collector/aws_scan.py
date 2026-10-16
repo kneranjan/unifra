@@ -37,9 +37,25 @@ def list_instances():
 print("---------------------")
 print(list_instances())
 
+def list_databases():
+  rds = boto3.client("rds")
+  response = rds.describe_db_instances()
+  region = rds.meta.region_name
+  found = 0
 
+
+  for db in response['DBInstances']:
+    print(f"{db['DBInstanceIdentifier']} | {db['DBInstanceStatus']} | {db['Engine']} | {db['DBInstanceClass']} | {region}")
+    found += 1
+
+  if found == 0:
+    print(f"No RDS databases found in {region}")
 
 
 if __name__ == "__main__":
   test_connection()
+  load_dotenv()
+  list_instances()
+  list_databases()
+
 
