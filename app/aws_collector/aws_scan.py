@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+#sts test
 def test_connection():
   STS_client = boto3.client("sts")
   response = STS_client.get_caller_identity()
@@ -51,11 +52,26 @@ def list_databases():
   if found == 0:
     print(f"No RDS databases found in {region}")
 
+def list_buckets():
+  s3 = boto3.client("s3")
+  response = s3.list_buckets()
+  buckets = response["Buckets"]
+  if not buckets:
+    print("No S3 buckets found")
+    return
+  print(f"Found these buckets:{buckets}")
+
+  for bucket in buckets:
+    name = bucket["Name"]
+    created = bucket["CreationDate"]
+    print(f" {name} --> created on  {created}") 
+
 
 if __name__ == "__main__":
   test_connection()
   load_dotenv()
   list_instances()
   list_databases()
+  list_buckets()
 
 
